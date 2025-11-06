@@ -102,8 +102,8 @@
               <q-btn
                 label="CREATE ACCOUNT"
                 type="submit"
-                color="kitako-neon"
-                class="full-width"
+                color="kitako-neon-bright"
+                class="full-width login-btn"
                 :loading="loading"
                 size="sm"
               />
@@ -113,31 +113,17 @@
               <q-btn
                 flat
                 dense
-                color="light-blue-2"
-                label="BACK TO LOGIN"
                 no-caps
-                to="/login"
+                class="cyber-return-btn"
+                label="⮌ BACK TO LOGIN"
                 size="sm"
+                @click="router.push('/login')"
               />
             </div>
           </q-form>
         </q-card-section>
       </q-card>
 
-      <!-- Error Message -->
-      <!-- <q-banner
-        v-if="errorMsg"
-        class="bg-negative text-white q-mt-sm q-mx-auto"
-        dense
-        style="max-width: 300px"
-      >
-        <div class="text-caption">{{ errorMsg }}</div>
-        <template v-slot:action>
-          <q-btn flat dense color="white" label="DISMISS" @click="errorMsg = ''" size="sm" />
-        </template>
-      </q-banner> -->
-
-      <!-- Status Display -->
       <div class="cyber-status">
         <div class="status-item">
           <q-icon name="circle" size="8px" color="green" class="q-mr-xs blink" />
@@ -244,6 +230,7 @@ const onSubmit = async () => {
   padding: 0.5rem;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   min-height: 100vh;
   width: 100%;
 }
@@ -251,7 +238,8 @@ const onSubmit = async () => {
 /* Compact Header */
 .cyber-header {
   text-align: center;
-  padding: 1rem 0;
+  margin-top: -80px; /* Push up to help with vertical centering */
+  padding-bottom: 1.5rem;
 }
 
 .logo-text {
@@ -275,7 +263,22 @@ const onSubmit = async () => {
   border-left: 3px solid var(--kitako-neon);
   max-width: 300px;
   margin: 0.5rem auto;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 2px 5px rgba(0, 0, 0, 0.3),
+    0 0 15px rgba(177, 74, 237, 0.2);
+  /* Add a subtle animation on load */
+  animation: card-appear 0.5s ease-out;
+}
+
+@keyframes card-appear {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .cyber-card-header {
@@ -306,6 +309,10 @@ const onSubmit = async () => {
   color: var(--kitako-neon-bright);
 }
 
+.login-btn {
+  position: relative;
+  box-shadow: 0 0 10px rgba(217, 101, 255, 0.5);
+}
 /* Status Bar */
 .cyber-status {
   display: flex;
@@ -365,4 +372,35 @@ const onSubmit = async () => {
     font-size: 0.9rem;
   }
 }
+
+.cyber-return-btn {
+  color: var(--kitako-neon-bright);
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+  position: relative;
+  transition: all 0.3s ease;
+  text-shadow: 0 0 6px rgba(177, 74, 237, 0.6);
+}
+
+.cyber-return-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(177, 74, 237, 0.4);
+  border-radius: 4px;
+  opacity: 0;
+  transition:
+    opacity 0.3s,
+    box-shadow 0.3s;
+}
+
+/* .cyber-return-btn:hover::before {
+  opacity: 1;
+  box-shadow: 0 0 12px rgba(217, 101, 255, 0.6);
+} */
+
+/* .cyber-return-btn:hover {
+  color: white;
+  text-shadow: 0 0 10px rgba(217, 101, 255, 1);
+} */
 </style>

@@ -22,7 +22,7 @@
       <!-- Login Form -->
       <q-card dark class="cyber-card q-mx-auto">
         <q-card-section class="cyber-card-header">
-          <div class="text-kitako-neon cyber-text">
+          <div class="text-kitako-neon-bright cyber-text">
             <q-icon name="login" size="sm" class="q-mr-xs" />
             <span>SYSTEM_ACCESS</span>
           </div>
@@ -39,11 +39,14 @@
               label="Email"
               class="cyber-input"
               bg-color="kitako-dark-3"
-              color="kitako-neon"
+              color="kitako-neon-bright"
+              input-class="text-white"
+              label-color="cyan-2"
               :rules="[(val) => (val && val.length > 0) || 'Email is required']"
+              hint-color="pink-3"
             >
               <template v-slot:prepend>
-                <q-icon name="email" size="xs" color="kitako-neon" />
+                <q-icon name="email" size="xs" color="kitako-neon-bright" />
               </template>
             </q-input>
 
@@ -56,11 +59,14 @@
               label="Password"
               class="cyber-input"
               bg-color="kitako-dark-3"
-              color="kitako-neon"
+              color="kitako-neon-bright"
+              input-class="text-white"
+              label-color="cyan-2"
               :rules="[(val) => (val && val.length > 0) || 'Password is required']"
+              hint-color="pink-3"
             >
               <template v-slot:prepend>
-                <q-icon name="lock" size="xs" color="kitako-neon" />
+                <q-icon name="lock" size="xs" color="kitako-neon-bright" />
               </template>
               <template v-slot:append>
                 <q-icon
@@ -68,7 +74,7 @@
                   class="cursor-pointer"
                   size="xs"
                   @click="isPwd = !isPwd"
-                  color="kitako-neon"
+                  color="kitako-neon-bright"
                 />
               </template>
             </q-input>
@@ -77,62 +83,49 @@
               <q-btn
                 label="LOGIN"
                 type="submit"
-                color="kitako-neon"
-                class="full-width"
+                color="kitako-neon-bright"
+                text-color="white"
+                class="full-width login-btn"
                 :loading="loading"
                 size="sm"
               />
             </div>
-
-            <div class="q-mt-sm">
-              <q-btn
-                flat
-                color="kitako-neon"
-                label="GOOGLE LOGIN"
-                icon="fab fa-google"
-                class="full-width"
-                @click="loginWithGoogle"
-                :loading="googleLoading"
-                size="sm"
-              />
-            </div>
-
-            <div class="q-mt-sm text-center">
-              <q-btn
-                flat
-                dense
-                color="grey-6"
-                label="CREATE ACCOUNT"
-                no-caps
-                to="/signup"
-                size="sm"
-              />
+            <div class="text-center row justify-evenly">
+              <div class="q-mt-sm text-center">
+                <q-btn
+                  flat
+                  dense
+                  color="white"
+                  label="GOOGLE LOGIN"
+                  @click="loginWithGoogle"
+                  :loading="googleLoading"
+                  size="sm"
+                />
+              </div>
+              <div class="q-mt-sm text-center">
+                <q-btn
+                  flat
+                  dense
+                  color="white"
+                  label="CREATE ACCOUNT"
+                  no-caps
+                  to="/signup"
+                  size="sm"
+                />
+              </div>
             </div>
           </q-form>
         </q-card-section>
       </q-card>
 
-      <!-- Error Message -->
-      <q-banner
-        v-if="errorMsg"
-        class="bg-negative text-white q-mt-sm q-mx-auto"
-        dense
-        style="max-width: 300px"
-      >
-        <div class="text-caption">{{ errorMsg }}</div>
-        <template v-slot:action>
-          <q-btn flat dense color="white" label="DISMISS" @click="errorMsg = ''" size="sm" />
-        </template>
-      </q-banner>
-
       <!-- Status Display -->
       <div class="cyber-status">
         <div class="status-item">
           <q-icon name="circle" size="8px" color="green" class="q-mr-xs blink" />
-          <span class="text-caption">ONLINE</span>
+          <span class="text-caption text-cyan-2">ONLINE</span>
         </div>
         <div class="status-item">
-          <span class="text-kitako-neon text-caption">v1.0</span>
+          <span class="text-kitako-neon-bright text-caption">v1.0</span>
         </div>
       </div>
     </div>
@@ -244,21 +237,23 @@ const loginWithGoogle = async () => {
   background: linear-gradient(135deg, rgba(18, 18, 18, 0.9) 0%, rgba(30, 30, 30, 0.75) 100%);
 }
 
-/* Mobile Container */
+/* Mobile Container - Centered both vertically and horizontally */
 .mobile-container {
   position: relative;
   z-index: 1;
   padding: 0.5rem;
   display: flex;
   flex-direction: column;
+  justify-content: center; /* Center content vertically */
   min-height: 100vh;
   width: 100%;
 }
 
-/* Compact Header */
+/* Compact Header - Adjust for vertical centering */
 .cyber-header {
   text-align: center;
-  padding: 1rem 0;
+  margin-top: -80px; /* Push up to help with vertical centering */
+  padding-bottom: 1.5rem;
 }
 
 .logo-text {
@@ -279,21 +274,64 @@ const loginWithGoogle = async () => {
 /* Card Styling */
 .cyber-card {
   background-color: var(--kitako-dark-2);
-  border-left: 3px solid var(--kitako-neon);
+  border-left: 3px solid var(--kitako-neon-bright);
   max-width: 300px;
-  margin: 0.5rem auto;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  margin: 0 auto; /* Center horizontally */
+  box-shadow:
+    0 2px 5px rgba(0, 0, 0, 0.3),
+    0 0 15px rgba(177, 74, 237, 0.2);
+  /* Add a subtle animation on load */
+  animation: card-appear 0.5s ease-out;
+}
+
+@keyframes card-appear {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .cyber-card-header {
   background-color: var(--kitako-dark-3);
   padding: 0.5rem;
+  border-bottom: 1px solid rgba(177, 74, 237, 0.3);
 }
 
 /* Input Styling */
 .cyber-input :deep(.q-field__control) {
-  border-left: 2px solid var(--kitako-neon);
+  border-left: 2px solid var(--kitako-neon-bright);
   min-height: 40px;
+}
+
+/* Improved text colors for cyber theme */
+.cyber-input :deep(.q-field__label) {
+  color: white !important; /* Bright cyan */
+}
+
+.cyber-input :deep(.q-field__native) {
+  color: white !important;
+}
+
+.cyber-input :deep(input::placeholder) {
+  color: rgba(177, 74, 237, 0.6) !important;
+}
+
+.cyber-input :deep(.q-field__marginal) {
+  color: var(--kitako-neon-bright);
+}
+
+/* Login button glow effect */
+.login-btn {
+  position: relative;
+  box-shadow: 0 0 10px rgba(217, 101, 255, 0.5);
+}
+
+.login-btn:hover {
+  box-shadow: 0 0 15px rgba(217, 101, 255, 0.8);
 }
 
 /* Status Bar */
@@ -353,6 +391,18 @@ const loginWithGoogle = async () => {
 
   .subtitle {
     font-size: 0.9rem;
+  }
+
+  .cyber-header {
+    margin-top: -100px; /* Adjust for larger screens */
+  }
+}
+
+/* Smaller screens - adjust vertical centering */
+@media (max-height: 600px) {
+  .cyber-header {
+    margin-top: -40px; /* Less negative margin for smaller height screens */
+    padding-bottom: 1rem;
   }
 }
 </style>
