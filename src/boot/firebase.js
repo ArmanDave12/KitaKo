@@ -16,14 +16,14 @@ import { getDatabase, ref, set, get, onValue, update, serverTimestamp } from 'fi
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: 'AIzaSyAGic1AYL-JOK6ExNLRRV0tbiXul_0VjVI',
-  authDomain: 'kitako-68786.firebaseapp.com',
-  databaseURL: 'https://kitako-68786-default-rtdb.firebaseio.com',
-  projectId: 'kitako-68786',
-  storageBucket: 'kitako-68786.firebasestorage.app',
-  messagingSenderId: '778378380453',
-  appId: '1:778378380453:web:750d999c8262f0d211f94c',
-  measurementId: 'G-NP66FEYC3Q',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 }
 
 // Initialize Firebase
