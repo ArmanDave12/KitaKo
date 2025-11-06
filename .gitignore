@@ -13,9 +13,18 @@ node_modules
 /src-cordova/plugins
 /src-cordova/www
 
+
 # Capacitor related directories and files
-/src-capacitor/www
-/src-capacitor/node_modules
+/src-capacitor
+
+
+# Android build artifacts
+/android
+
+
+# Firebase
+.firebase/
+firebase-debug.log
 
 # Log files
 npm-debug.log*

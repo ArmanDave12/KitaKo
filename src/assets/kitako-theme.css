@@ -1,0 +1,372 @@
+/* KitaKo - Dark Purple Neon Hacker Theme */
+
+:root {
+  /* Core colors */
+  --kitako-dark: #121212;
+  --kitako-dark-1: #1a1a1a;
+  --kitako-dark-2: #222222;
+  --kitako-neon: #b14aed;
+  --kitako-neon-bright: #d965ff;
+  --kitako-neon-glow: 0 0 8px rgba(217, 101, 255, 0.7);
+  --kitako-secondary: #10e5c5;
+  --kitako-accent: #ff4081;
+  --kitako-danger: #ff5252;
+  --kitako-success: #4caf50;
+
+  /* Font variables */
+  --cyber-font: 'Courier New', monospace;
+  --main-font: 'Inter', sans-serif;
+}
+
+/* Global resets */
+body {
+  font-family: var(--main-font);
+  background-color: var(--kitako-dark);
+  color: white;
+  margin: 0;
+  padding: 0;
+}
+
+/* Custom Quasar color classes */
+.bg-kitako-dark {
+  background-color: var(--kitako-dark) !important;
+}
+.bg-kitako-dark-1 {
+  background-color: var(--kitako-dark-1) !important;
+}
+.bg-kitako-dark-2 {
+  background-color: var(--kitako-dark-2) !important;
+}
+.text-kitako-neon {
+  color: var(--kitako-neon) !important;
+}
+.text-kitako-neon-bright {
+  color: var(--kitako-neon-bright) !important;
+}
+.bg-kitako-neon {
+  background-color: var(--kitako-neon) !important;
+}
+.bg-kitako-neon-bright {
+  background-color: var(--kitako-neon-bright) !important;
+}
+
+/* UI Hacker Cyber Elements */
+.cyber-text {
+  font-family: var(--cyber-font);
+  letter-spacing: 1px;
+}
+
+.cyber-card {
+  box-shadow:
+    0 5px 15px rgba(0, 0, 0, 0.5),
+    0 0 10px rgba(177, 74, 237, 0.2) !important;
+  border: 1px solid rgba(177, 74, 237, 0.2) !important;
+  overflow: hidden;
+}
+
+.cyber-btn {
+  letter-spacing: 0.5px;
+  border-radius: 2px !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.cyber-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0)
+  );
+  transform: rotate(30deg);
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.cyber-btn:hover::after {
+  opacity: 1;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--kitako-dark-2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--kitako-neon);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--kitako-neon-bright);
+}
+
+/* Animations */
+.blink {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+@keyframes pulse-slow {
+  0% {
+    text-shadow: 0 0 5px rgba(217, 101, 255, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 15px rgba(217, 101, 255, 0.8);
+  }
+  100% {
+    text-shadow: 0 0 5px rgba(217, 101, 255, 0.3);
+  }
+}
+
+/* Input Elements */
+.q-field__native,
+.q-field__input {
+  color: white !important;
+}
+
+.q-field--dark .q-field__control::before {
+  border-color: rgba(177, 74, 237, 0.3) !important;
+}
+
+.q-field--dark .q-field__control:hover::before {
+  border-color: var(--kitako-neon) !important;
+}
+
+.q-field--dark.q-field--focused .q-field__control::before {
+  border-color: var(--kitako-neon-bright) !important;
+}
+
+/* Dialog & Modal Styles */
+.q-dialog__inner > div {
+  background-color: var(--kitako-dark-2) !important;
+  color: white !important;
+  border: 1px solid var(--kitako-neon) !important;
+}
+
+/* Table Styles */
+.q-table--dark {
+  background-color: var(--kitako-dark-2) !important;
+}
+
+.q-table--dark th {
+  background-color: var(--kitako-dark) !important;
+  color: var(--kitako-neon) !important;
+}
+
+.q-table--dark tr:hover td {
+  background-color: rgba(177, 74, 237, 0.1) !important;
+}
+
+/* Loading indicator */
+.q-loading-bar {
+  background: linear-gradient(
+    90deg,
+    var(--kitako-neon) 0%,
+    var(--kitako-neon-bright) 100%
+  ) !important;
+  height: 3px !important;
+}
+
+/* Notification styles */
+.q-notification {
+  background-color: var(--kitako-dark-2) !important;
+  border-left: 4px solid var(--kitako-neon) !important;
+  color: white !important;
+}
+
+/* Form Controls */
+.q-checkbox__inner {
+  color: var(--kitako-neon) !important;
+}
+
+.q-radio__inner {
+  color: var(--kitako-neon) !important;
+}
+
+.q-toggle__inner {
+  color: var(--kitako-neon) !important;
+}
+
+/* Matrix/Terminal-like Text Effect for Splash Screen */
+.matrix-effect {
+  position: relative;
+  font-family: var(--cyber-font);
+  overflow: hidden;
+  background-color: black;
+}
+
+.matrix-effect::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  width: 100%;
+  height: calc(100% + 20px);
+  background: linear-gradient(0deg, transparent 0%, rgba(177, 74, 237, 0.2) 50%, transparent 100%);
+  animation: matrix-scan 3s linear infinite;
+}
+
+@keyframes matrix-scan {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+/* Card Hover Effects */
+.hover-glow {
+  transition: all 0.3s ease;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 15px rgba(217, 101, 255, 0.5) !important;
+  transform: translateY(-2px);
+}
+
+/* Buttons with circuit patterns */
+.circuit-btn {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.circuit-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(
+      circle at 10% 20%,
+      transparent 0,
+      transparent 2px,
+      rgba(177, 74, 237, 0.1) 2px,
+      transparent 3px
+    ),
+    radial-gradient(
+      circle at 80% 40%,
+      transparent 0,
+      transparent 2px,
+      rgba(217, 101, 255, 0.1) 2px,
+      transparent 3px
+    ),
+    radial-gradient(
+      circle at 30% 70%,
+      transparent 0,
+      transparent 2px,
+      rgba(177, 74, 237, 0.1) 2px,
+      transparent 3px
+    ),
+    linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 40%,
+      rgba(177, 74, 237, 0.1) 40%,
+      rgba(177, 74, 237, 0.1) 41%,
+      transparent 41%
+    ),
+    linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 60%,
+      rgba(177, 74, 237, 0.1) 60%,
+      rgba(177, 74, 237, 0.1) 61%,
+      transparent 61%
+    );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.circuit-btn:hover::before {
+  opacity: 1;
+}
+
+/* Custom grid lines */
+.grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(177, 74, 237, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(177, 74, 237, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Special text gradient effect */
+.text-gradient {
+  background: linear-gradient(90deg, var(--kitako-neon) 0%, var(--kitako-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glitch effect for text */
+.glitch-text {
+  position: relative;
+  animation: glitch 3s infinite;
+}
+
+@keyframes glitch {
+  0% {
+    text-shadow: none;
+  }
+  20% {
+    text-shadow: none;
+  }
+  21% {
+    text-shadow:
+      -2px 0 var(--kitako-neon),
+      2px 0 var(--kitako-secondary);
+  }
+  22% {
+    text-shadow: none;
+  }
+  61% {
+    text-shadow: none;
+  }
+  62% {
+    text-shadow:
+      2px 0 var(--kitako-neon),
+      -2px 0 var(--kitako-secondary);
+  }
+  63% {
+    text-shadow: none;
+  }
+  80% {
+    text-shadow: none;
+  }
+  81% {
+    text-shadow:
+      -1px 0 var(--kitako-secondary),
+      1px 0 var(--kitako-neon);
+  }
+  82% {
+    text-shadow: none;
+  }
+  100% {
+    text-shadow: none;
+  }
+}
