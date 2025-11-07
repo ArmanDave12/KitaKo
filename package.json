@@ -21,7 +21,9 @@
     "@capacitor/status-bar": "^7.0.3",
     "@quasar/extras": "^1.17.0",
     "axios": "^1.13.2",
+    "crypto-js": "^4.2.0",
     "firebase": "^12.5.0",
+    "idb": "^8.0.3",
     "pinia": "^2.0.11",
     "quasar": "^2.18.5",
     "vue": "^3.4.18",
@@ -38,7 +40,8 @@
     "globals": "^15.12.0",
     "postcss": "^8.4.14",
     "prettier": "^3.3.3",
-    "vite-plugin-checker": "^0.8.0"
+    "vite-plugin-checker": "^0.8.0",
+    "workbox-cli": "^7.3.0"
   },
   "engines": {
     "node": "^28 || ^26 || ^24 || ^22 || ^20 || ^18",

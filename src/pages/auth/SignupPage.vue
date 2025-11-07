@@ -26,6 +26,12 @@
             <q-icon name="person_add" size="sm" class="q-mr-xs" />
             <span>CREATE_ACCOUNT</span>
           </div>
+
+          <!-- Offline Indicator -->
+          <div v-if="!isOnline" class="offline-indicator">
+            <q-icon name="wifi_off" size="xs" class="q-mr-xs" />
+            <span class="text-caption">OFFLINE_MODE</span>
+          </div>
         </q-card-section>
 
         <q-card-section class="q-pa-md">
@@ -98,9 +104,18 @@
               </template>
             </q-input>
 
+            <div v-if="!isOnline" class="q-mt-sm">
+              <q-banner rounded class="bg-kitako-dark-3 text-white text-caption">
+                <template v-slot:avatar>
+                  <q-icon name="info" color="orange" />
+                </template>
+                You are creating an offline account. It will be synced when you reconnect.
+              </q-banner>
+            </div>
+
             <div class="q-mt-md">
               <q-btn
-                label="CREATE ACCOUNT"
+                :label="isOnline ? 'CREATE ACCOUNT' : 'CREATE OFFLINE ACCOUNT'"
                 type="submit"
                 color="kitako-neon-bright"
                 class="full-width login-btn"
@@ -126,11 +141,17 @@
 
       <div class="cyber-status">
         <div class="status-item">
-          <q-icon name="circle" size="8px" color="green" class="q-mr-xs blink" />
-          <span class="text-caption">ONLINE</span>
+          <q-icon
+            :name="isOnline ? 'circle' : 'wifi_off'"
+            size="8px"
+            :color="isOnline ? 'green' : 'orange'"
+            class="q-mr-xs"
+            :class="{ blink: !isOnline }"
+          />
+          <span class="text-caption">{{ isOnline ? 'ONLINE' : 'OFFLINE' }}</span>
         </div>
         <div class="status-item">
-          <span class="text-kitako-neon text-caption">v1.0</span>
+          <span class="text-kitako-neon text-caption">v1.1</span>
         </div>
       </div>
     </div>
@@ -138,10 +159,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { registerWithEmail } from 'boot/firebase'
 import { useQuasar } from 'quasar'
+import { openDB } from 'idb'
+
+// Import these from 'boot/firebase' instead of using the direct imports
+// This ensures we use the wrapped versions from offline.js
+import { signInWithEmail, signInWithGoogle, registerWithEmail } from 'boot/firebase'
 
 const $q = useQuasar()
 const router = useRouter()
@@ -151,27 +176,90 @@ const password = ref('')
 const isPwd = ref(true)
 const loading = ref(false)
 const errorMsg = ref('')
+const isOnline = ref(navigator.onLine)
+
+// Function to directly interact with the IndexedDB
+async function addToPendingRegistrations(userData) {
+  try {
+    console.log('Storing in pendingRegistrations:', userData.email)
+    const db = await openDB('kitako-auth-db', 1)
+
+    // Create the pending registration entry
+    const pendingReg = {
+      email: userData.email,
+      displayName: userData.displayName || '',
+      password: userData.password, // This should already be encrypted
+      createdAt: new Date().toISOString(),
+    }
+
+    // Save to pendingRegistrations store
+    await db.put('pendingRegistrations', pendingReg)
+    console.log('Successfully stored in pendingRegistrations')
+
+    // Verify it was saved correctly
+    const savedEntry = await db.get('pendingRegistrations', userData.email)
+    console.log('Verified pendingRegistrations entry:', !!savedEntry)
+
+    return true
+  } catch (error) {
+    console.error('Error adding to pendingRegistrations:', error)
+    return false
+  }
+}
+
+onMounted(() => {
+  // Setup online/offline event listeners
+  window.addEventListener('online', () => {
+    isOnline.value = true
+    // Notify about being back online
+    $q.notify({
+      message: 'You are back online! Syncing pending accounts...',
+      color: 'positive',
+      icon: 'wifi',
+      position: 'top',
+      timeout: 3000,
+    })
+  })
+
+  window.addEventListener('offline', () => {
+    isOnline.value = false
+    // Notify about being offline
+    $q.notify({
+      message: 'You are offline. Limited functionality available.',
+      color: 'warning',
+      icon: 'wifi_off',
+      position: 'top',
+      timeout: 3000,
+    })
+  })
+})
 
 const onSubmit = async () => {
   if (!name.value || !email.value || !password.value) return
 
   try {
     loading.value = true
+
+    // Whether online or offline, we'll use the global method from boot/offline.js
+    // This ensures the registration is properly handled with offline support
     await registerWithEmail(email.value, password.value, name.value)
 
-    // Success notification
+    // Show success notification
     $q.notify({
       color: 'positive',
       icon: 'check_circle',
-      message: 'Account created successfully!',
+      message: isOnline.value
+        ? 'Account created successfully!'
+        : 'Offline account created! Will sync when online.',
       position: 'top',
     })
 
-    router.push('/home') // Redirect to home page after signup
+    // Redirect to home page
+    router.push('/home')
   } catch (error) {
     console.error('Signup error:', error)
 
-    // Error notification
+    // Show error notification
     $q.notify({
       color: 'negative',
       icon: 'error',
@@ -179,8 +267,6 @@ const onSubmit = async () => {
       position: 'top',
       timeout: 5000,
     })
-
-    errorMsg.value = error.message || 'Signup failed. Please try again.'
   } finally {
     loading.value = false
   }
@@ -268,6 +354,32 @@ const onSubmit = async () => {
     0 0 15px rgba(177, 74, 237, 0.2);
   /* Add a subtle animation on load */
   animation: card-appear 0.5s ease-out;
+}
+
+/* Offline indicator */
+.cyber-card-header {
+  position: relative;
+}
+
+.offline-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-family: 'Courier New', monospace;
+  color: orange;
+  display: flex;
+  align-items: center;
+  animation: pulse-warning 2s infinite;
+}
+
+@keyframes pulse-warning {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 @keyframes card-appear {
@@ -393,14 +505,4 @@ const onSubmit = async () => {
     opacity 0.3s,
     box-shadow 0.3s;
 }
-
-/* .cyber-return-btn:hover::before {
-  opacity: 1;
-  box-shadow: 0 0 12px rgba(217, 101, 255, 0.6);
-} */
-
-/* .cyber-return-btn:hover {
-  color: white;
-  text-shadow: 0 0 10px rgba(217, 101, 255, 1);
-} */
 </style>

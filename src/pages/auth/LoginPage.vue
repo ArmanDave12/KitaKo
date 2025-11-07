@@ -26,6 +26,12 @@
             <q-icon name="login" size="sm" class="q-mr-xs" />
             <span>SYSTEM_ACCESS</span>
           </div>
+
+          <!-- Offline Indicator -->
+          <div v-if="!isOnline" class="offline-indicator">
+            <q-icon name="wifi_off" size="xs" class="q-mr-xs" />
+            <span class="text-caption">OFFLINE_MODE</span>
+          </div>
         </q-card-section>
 
         <q-card-section class="q-pa-md">
@@ -91,7 +97,7 @@
               />
             </div>
             <div class="text-center row justify-evenly">
-              <div class="q-mt-sm text-center">
+              <div class="q-mt-sm text-center" v-if="isOnline">
                 <q-btn
                   flat
                   dense
@@ -121,11 +127,17 @@
       <!-- Status Display -->
       <div class="cyber-status">
         <div class="status-item">
-          <q-icon name="circle" size="8px" color="green" class="q-mr-xs blink" />
-          <span class="text-caption text-cyan-2">ONLINE</span>
+          <q-icon
+            :name="isOnline ? 'circle' : 'wifi_off'"
+            size="8px"
+            :color="isOnline ? 'green' : 'orange'"
+            class="q-mr-xs"
+            :class="{ blink: !isOnline }"
+          />
+          <span class="text-caption text-cyan-2">{{ isOnline ? 'ONLINE' : 'OFFLINE' }}</span>
         </div>
         <div class="status-item">
-          <span class="text-kitako-neon-bright text-caption">v1.0</span>
+          <span class="text-kitako-neon-bright text-caption">v1.1</span>
         </div>
       </div>
     </div>
@@ -133,11 +145,19 @@
 </template>
 
 <script setup>
-// Script remains the same
-import { ref } from 'vue'
+// Script with improved offline authentication support
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { signInWithEmail, signInWithGoogle } from 'boot/firebase'
 import { useQuasar } from 'quasar'
+import {
+  loginLocalUser,
+  initializeOfflineAuth,
+  syncLocalUsersToFirebase,
+  getCurrentSession,
+  syncUserToLocal,
+} from '../../services/localAuth'
+
 const $q = useQuasar()
 const router = useRouter()
 const email = ref('')
@@ -146,20 +166,88 @@ const isPwd = ref(true)
 const loading = ref(false)
 const googleLoading = ref(false)
 const errorMsg = ref('')
+const isOnline = ref(navigator.onLine)
 
+// Initialize offline auth system
+onMounted(() => {
+  initializeOfflineAuth()
+
+  // Setup online/offline event listeners
+  window.addEventListener('online', () => {
+    console.log('Online status change: ONLINE')
+    isOnline.value = true
+    // Try to sync any offline registered users
+    syncLocalUsersToFirebase()
+  })
+
+  window.addEventListener('offline', () => {
+    console.log('Online status change: OFFLINE')
+    isOnline.value = false
+  })
+
+  // Check if we have an active session already
+  checkExistingSession()
+})
+
+// Check if user is already logged in
+async function checkExistingSession() {
+  try {
+    const session = await getCurrentSession()
+    if (session) {
+      console.log('Active session found, redirecting to home')
+      router.push('/home')
+    }
+  } catch (error) {
+    console.error('Error checking session:', error)
+  }
+}
+
+// Main login function with improved error-based offline detection
 const onSubmit = async () => {
   if (!email.value || !password.value) return
 
   try {
     loading.value = true
-    await signInWithEmail(email.value, password.value)
-    $q.notify({
-      color: 'positive',
-      icon: 'check_circle',
-      message: 'Login successful',
-      position: 'top', // Display at the top of the screen
-    })
-    router.push('/home')
+
+    // Always try Firebase authentication first, regardless of navigator.onLine
+    try {
+      console.log('Attempting Firebase authentication...')
+      const user = await signInWithEmail(email.value, password.value)
+
+      // Success! Save credentials for offline use
+      console.log('Firebase login successful, syncing credentials for offline use')
+      await syncUserToLocal({
+        email: email.value,
+        password: password.value,
+        displayName: user.displayName || '',
+        uid: user.uid,
+      })
+
+      // Verify data was saved to IndexedDB
+      verifyLocalStorage()
+
+      $q.notify({
+        color: 'positive',
+        icon: 'check_circle',
+        message: 'Login successful',
+        position: 'top',
+      })
+
+      router.push('/home')
+    } catch (firebaseError) {
+      console.error('Firebase login error:', firebaseError)
+
+      // Check specifically for network error
+      if (firebaseError.code === 'auth/network-request-failed') {
+        console.log('Network error detected, switching to offline authentication')
+
+        // Try offline authentication
+        await attemptOfflineLogin()
+      } else {
+        // It's not a network error, just a regular auth error (like wrong password)
+        throw firebaseError
+      }
+    }
   } catch (error) {
     console.error('Login error:', error)
     $q.notify({
@@ -168,13 +256,59 @@ const onSubmit = async () => {
       message: error.message || 'Login failed. Please try again.',
       position: 'top',
     })
-    errorMsg.value = error.message || 'Login failed. Please try again.'
   } finally {
     loading.value = false
   }
 }
 
+// Separate function for offline login
+async function attemptOfflineLogin() {
+  try {
+    console.log('Attempting offline login...')
+    const result = await loginLocalUser(email.value, password.value)
+
+    if (result && result.success) {
+      console.log('Offline login successful')
+      $q.notify({
+        color: 'positive',
+        icon: 'check_circle',
+        message: 'Offline login successful',
+        position: 'top',
+      })
+
+      router.push('/home')
+    } else {
+      throw new Error('Offline login failed')
+    }
+  } catch (offlineError) {
+    console.error('Offline login error:', offlineError)
+
+    // Debug IndexedDB to help diagnose the issue
+    checkIndexedDBStatus()
+
+    $q.notify({
+      color: 'negative',
+      icon: 'error',
+      message: `Offline login failed: ${offlineError.message}. Have you logged in online first?`,
+      position: 'top',
+    })
+
+    throw offlineError
+  }
+}
+
+// Google login - requires internet
 const loginWithGoogle = async () => {
+  if (!isOnline.value) {
+    $q.notify({
+      color: 'warning',
+      icon: 'wifi_off',
+      message: 'Google login is not available in offline mode',
+      position: 'top',
+    })
+    return
+  }
+
   try {
     googleLoading.value = true
     await signInWithGoogle()
@@ -194,9 +328,60 @@ const loginWithGoogle = async () => {
       message: error.message || 'Google login failed. Please try again.',
       position: 'top',
     })
-    errorMsg.value = error.message || 'Google login failed. Please try again.'
   } finally {
     googleLoading.value = false
+  }
+}
+
+// Helper function to verify data was stored in IndexedDB
+function verifyLocalStorage() {
+  try {
+    const dbRequest = indexedDB.open('kitako-auth-db', 1)
+    dbRequest.onsuccess = function (event) {
+      const db = event.target.result
+      const tx = db.transaction(['users'], 'readonly')
+      const store = tx.objectStore('users')
+      const getRequest = store.get(email.value)
+
+      getRequest.onsuccess = function () {
+        console.log('User stored in IndexedDB:', !!getRequest.result)
+        if (getRequest.result) {
+          console.log('User has password?', !!getRequest.result.password)
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error verifying local storage:', error)
+  }
+}
+
+// Debug helper function
+function checkIndexedDBStatus() {
+  try {
+    const dbRequest = indexedDB.open('kitako-auth-db', 1)
+    dbRequest.onsuccess = function (event) {
+      const db = event.target.result
+      const tx = db.transaction(['users'], 'readonly')
+      const store = tx.objectStore('users')
+      const getAllRequest = store.getAll()
+
+      getAllRequest.onsuccess = function () {
+        console.log('All users in IndexedDB:', getAllRequest.result)
+
+        // Check if this specific user exists
+        const getRequest = store.get(email.value)
+        getRequest.onsuccess = function () {
+          if (getRequest.result) {
+            console.log('Found user in DB:', getRequest.result.email)
+            console.log('Password stored?', !!getRequest.result.password)
+          } else {
+            console.log('User not found in IndexedDB:', email.value)
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error checking IndexedDB:', error)
   }
 }
 </script>
@@ -282,6 +467,32 @@ const loginWithGoogle = async () => {
     0 0 15px rgba(177, 74, 237, 0.2);
   /* Add a subtle animation on load */
   animation: card-appear 0.5s ease-out;
+}
+
+/* Offline indicator */
+.cyber-card-header {
+  position: relative;
+}
+
+.offline-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-family: 'Courier New', monospace;
+  color: orange;
+  display: flex;
+  align-items: center;
+  animation: pulse-warning 2s infinite;
+}
+
+@keyframes pulse-warning {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 @keyframes card-appear {

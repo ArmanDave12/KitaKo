@@ -68,15 +68,6 @@ export const registerWithEmail = async (email, password, displayName) => {
   }
 }
 
-export const logout = async () => {
-  try {
-    await signOut(auth)
-  } catch (error) {
-    console.error('Error signing out', error)
-    throw error
-  }
-}
-
 export const getCurrentUser = () => {
   return new Promise((resolve, reject) => {
     const unsubscribe = onAuthStateChanged(

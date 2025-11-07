@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KitaKo - Offline</title>
+    <style>
+      :root {
+        --kitako-dark: #121212;
+        --kitako-dark-1: #1a1a1a;
+        --kitako-dark-2: #222222;
+        --kitako-neon: #b14aed;
+        --kitako-neon-bright: #d965ff;
+        --kitako-neon-glow: 0 0 8px rgba(217, 101, 255, 0.7);
+        --cyber-font: 'Courier New', monospace;
+      }
+
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--kitako-dark);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        padding: 20px;
+        text-align: center;
+      }
+
+      .logo-text {
+        font-size: 2.5rem;
+        font-weight: bold;
+        letter-spacing: 2px;
+        color: white;
+        text-shadow: 0 0 8px rgba(217, 101, 255, 0.7);
+        margin-bottom: 10px;
+      }
+
+      .subtitle {
+        font-family: var(--cyber-font);
+        color: var(--kitako-neon);
+        margin-bottom: 30px;
+        letter-spacing: 1px;
+      }
+
+      .message {
+        background-color: var(--kitako-dark-2);
+        padding: 20px;
+        border-radius: 5px;
+        border-left: 3px solid var(--kitako-neon-bright);
+        max-width: 500px;
+        margin-bottom: 30px;
+      }
+
+      .offline-icon {
+        font-size: 50px;
+        color: var(--kitako-neon-bright);
+        margin-bottom: 20px;
+        animation: pulse 2s infinite;
+      }
+
+      .btn {
+        background-color: var(--kitako-neon);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-family: var(--cyber-font);
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(217, 101, 255, 0.5);
+      }
+
+      .btn:hover {
+        background-color: var(--kitako-neon-bright);
+        box-shadow: 0 0 15px rgba(217, 101, 255, 0.8);
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 0.6;
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0.6;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="offline-icon">⚠</div>
+    <div class="logo-text">KITAKO</div>
+    <div class="subtitle">OFFLINE_MODE</div>
+
+    <div class="message">
+      <p>
+        You are currently offline. If you've previously logged in, you should still be able to
+        access some app features.
+      </p>
+      <p>Please check your internet connection and try again.</p>
+    </div>
+
+    <button class="btn" onclick="window.location.reload()">RETRY_CONNECTION</button>
+
+    <script>
+      // Check if we're back online
+      window.addEventListener('online', () => {
+        window.location.reload()
+      })
+    </script>
+  </body>
+</html>

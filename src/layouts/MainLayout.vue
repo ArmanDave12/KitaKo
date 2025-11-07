@@ -98,24 +98,40 @@
 </template>
 
 <script setup>
-import { logout as firebaseLogout } from '../boot/firebase.js'
-import { ref } from 'vue'
+import { logoutUser, setFirebaseConnectionStatus } from 'src/services/combinedLogout'
+import { useFirebaseConnectionStatus } from 'src/composables/useFirebaseConnectionStatus'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 const leftDrawerOpen = ref(false)
 const router = useRouter()
+
+const { firebaseConnected } = useFirebaseConnectionStatus()
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
 
 async function logout() {
   try {
-    await firebaseLogout() // Call the imported logout function
-    router.push('/login') // Redirect to login page after logout
+    await logoutUser() // Call the imported logout function
+    setTimeout(() => {
+      router.push('/login')
+    }, 500)
+
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith('firebase:') || key.includes('firebase')) {
+        localStorage.removeItem(key)
+      }
+    })
+    window.location.reload()
   } catch (error) {
     console.error('Logout error:', error)
     // Show error notification if needed
   }
 }
+
+watch(firebaseConnected, (newStatus) => {
+  setFirebaseConnectionStatus(newStatus)
+})
 </script>
 
 <style>
